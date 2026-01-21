@@ -5,3 +5,5 @@ from pipeline_stack import NycTaxiSfnStack
 app = cdk.App()
 NycTaxiSfnStack(app, "NycTaxiSfnStack")
 app.synth()
+# CI trigger test
+
