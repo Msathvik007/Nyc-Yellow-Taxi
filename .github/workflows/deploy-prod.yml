@@ -1,0 +1,38 @@
+name: Deploy Prod
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install infra deps
+        run: |
+          pip install -r infra/requirements.txt
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_PROD_ROLE_ARN }}
+          aws-region: us-east-2
+
+      - name: CDK Deploy (prod)
+        run: |
+          cd infra
+          npx -y aws-cdk deploy --require-approval never --context stage=prod
+

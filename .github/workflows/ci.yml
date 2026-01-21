@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [dev, main]
+
+jobs:
+  synth:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install infra deps
+        run: |
+          pip install -r infra/requirements.txt
+
+      - name: CDK synth (dev)
+        run: |
+          cd infra
+          npx -y aws-cdk synth --context stage=dev
+
+      - name: CDK synth (prod)
+        run: |
+          cd infra
+          npx -y aws-cdk synth --context stage=prod
+
